@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Calendar</title>
+    </head>
+
+    <body>
+        <h1>Calendar</h1>
+
+        <ul>
+            <li th:each="task: ${tasks}"><span th:text="${task.name}">name</span></li>
+        </ul>
+
+        <h2>Add new</h2>
+
+        <form th:action="@{/}" method="POST">
+            <input type="text" name="name"/>
+            <input type="submit" value="Add!"/>
+        </form>
+    </body>
+</html>
