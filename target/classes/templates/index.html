@@ -8,13 +8,21 @@
         <h1>Calendar</h1>
 
         <ul>
-            <li th:each="task: ${tasks}"><span th:text="${task.name}">name</span></li>
+            <li th:each="event: ${events}">
+                <span th:text="${event.title}">title</span>
+                <span th:text="${event.desc}">description</span>
+                <span th:text="${event.date}">date</span>
+                <span th:text="${event.status}">status</span>
+            </li>
         </ul>
 
         <h2>Add new</h2>
 
         <form th:action="@{/}" method="POST">
-            <input type="text" name="name"/>
+            <input type="text" name="title" placeholder="Title"/>
+            <input type="text" name="desc" placeholder="Description"/>
+            <input type="text" name="date" placeholder="Date"/>
+            <input type="text" name="category" placeholder="Category"/>
             <input type="submit" value="Add!"/>
         </form>
     </body>
