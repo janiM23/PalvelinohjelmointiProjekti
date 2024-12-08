@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Category - Events</title>
+</head>
+<body>
+<h1>Events in Category: <span th:text="${category.tag}"></span></h1>
+
+<ul>
+    <li th:each="event: ${events}">
+        <span th:text="${event.title}">Event Title</span>
+        <span th:text="${event.desc}">Description</span>
+        <span th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}">Date</span>
+        <span th:text="${event.status}">Status</span>
+        <a th:href="@{/events/{id}(id=${event.id})}">View Details</a>
+    </li>
+</ul>
+
+<a href="/">Back to Calendar</a>
+</body>
+</html>

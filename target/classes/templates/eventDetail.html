@@ -12,7 +12,7 @@
 <body>
 <h1>Event Details</h1>
 
-<!-- View Mode: Display task details -->
+<!-- Tarkistaako onko editmode pois päältä. -->
 <div th:if="${!editMode}">
     <h2 th:text="${event.title}"></h2>
     <p th:text="${event.desc}"></p>
@@ -24,15 +24,16 @@
     </form>
 </div>
 
-<!-- Edit Mode: Display task editing form -->
+<!-- Jos editti mode on päällä näytetän tämä. -->
 <div th:if="${editMode}">
     <h2>Edit Event</h2>
 
-    <!-- Error message for invalid date -->
+    <!-- Virheviesti jos käyttäjä töppää päivämäärän kanssa. -->
     <div id="dateError" class="error-message" th:if="${dateError != null}">
         <p th:text="${dateError}">Invalid date format. Please use dd.MM.yyyy.</p>
     </div>
 
+    <!-- Hakee oikean eventin ja th:valuella näyttää valmiit arvot inputeissa. -->
     <form id="editEventForm" th:action="@{/events/{id}/edit(id=${event.id})}" method="POST" onsubmit="return validateDate()">
         <label for="title">Title:</label>
         <input type="text" id="title" name="title" th:value="${event.title}" required/><br/>
@@ -43,6 +44,7 @@
         <label for="date">Date:</label>
         <input type="text" id="date" name="date" th:value="${#temporals.format(event.date, 'dd.MM.yyyy')}" required/><br/>
 
+        <!-- Status on boolean, joten yksinkertainen selecti. -->
         <label for="status">Status:</label>
         <select id="status" name="status" required>
             <option value="true" th:selected="${event.status == true}">True</option>
@@ -51,6 +53,8 @@
 
         <input type="submit" value="Save Changes"/>
     </form>
+
+    <a th:href="@{/events/{id}/edit-categories(id=${event.id})}" class="btn btn-primary">Edit Categories</a>
 </div>
 
 <a href="/" th:href="@{/}">Back to Calendar</a>

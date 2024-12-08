@@ -20,6 +20,19 @@
             </li>
         </ul>
 
+        <h2>Categories</h2>
+        <div th:if="${categories != null and not #lists.isEmpty(categories)}">
+            <ul>
+                <li th:each="category: ${categories}">
+                    <a th:href="@{/categories/{id}(id=${category.id})}" class="category-link"
+                       th:text="${category.tag}">Category Name</a>
+                </li>
+            </ul>
+        </div>
+        <div th:if="${categories == null or #lists.isEmpty(categories)}">
+            <p>No categories available.</p>
+        </div>
+
         <h2>Add new</h2>
 
         <form th:action="@{/}" method="POST">

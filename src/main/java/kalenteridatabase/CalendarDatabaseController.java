@@ -10,10 +10,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class CalendarDatabaseController {
@@ -27,7 +25,19 @@ public class CalendarDatabaseController {
 
     @GetMapping("/")
     public String list(Model model) {
-        model.addAttribute("events", this.calendarRepository.findAll());
+        // Retrieve the list of events
+        List<Event> events = calendarRepository.findAll();
+        List<Category> categories = categoryRepository.findAll();
+
+        // Sort the events by localtime (oldest to newest)
+        events = events.stream()
+                .sorted(Comparator.comparing(Event::getDate)) // Sorting by localtime field
+                .collect(Collectors.toList());
+
+        // Add sorted events to the model
+        System.out.println("eventit: " + events);
+        model.addAttribute("events", events);
+        model.addAttribute("categories", categories);
         return "index";
     }
 
@@ -53,6 +63,19 @@ public class CalendarDatabaseController {
         return "eventDetail";
     }
 
+    //Näyttää kategoriassa olevat eventit.
+    @GetMapping("/categories/{id}")
+    public String showCategoryEvents(@PathVariable Long id, Model model) {
+        Category category = categoryRepository.findById(id).orElse(null);
+
+        if (category != null) {
+            List<Event> events = calendarRepository.findByCategoryTags(category);
+            model.addAttribute("category", category);
+            model.addAttribute("events", events);
+        }
+        return "category";
+    }
+
     //Yksittäisen eventin editointi.
     @PostMapping("/events/{id}/edit")
     public String saveEditedEvent(@PathVariable Long id, @ModelAttribute Event event) {
@@ -66,6 +89,77 @@ public class CalendarDatabaseController {
         calendarRepository.save(existingEvent);
 
         return "redirect:/";
+    }
+
+    //Listaa eventin kategoriat muokattavaksi tai lisättäväksi.
+    @GetMapping("/events/{id}/edit-categories")
+    public String editCategories(@PathVariable Long id, Model model) {
+        Event event = calendarRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found."));
+
+        model.addAttribute("event", event);
+        model.addAttribute("categories", event.getCategoryTags());
+
+        return "categoriesEdit";
+    }
+
+    //Laittaa kategorian eventille, vaikka kategoria olisi jo olemassa.
+    @PostMapping("/events/{id}/edit-categories")
+    public String saveCategories(@PathVariable Long id, @RequestParam List<String> categoryNames) {
+
+        //Etsii oikean eventin id:n avulla.
+        Event event = calendarRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        //Etsii eventistä jo olemassa olevat kategoriat.
+        List<Category> currentCategories = event.getCategoryTags();
+
+        //Etsii onko kategorioissa jo annettua kategoriaa.
+        List<Category> updatedCategories = categoryRepository.findByTagIn(categoryNames);
+        System.out.println("updatedcategories: " + updatedCategories);
+
+        //Suodattaa kaikki jotka ei ole olemassa tietokannassa.
+        //Jos on uusi luodaan sille kategoria.
+        //Lopuksi kerätään listaan kaikki uudet kategoriat.
+        List<Category> missingCategories = categoryNames.stream()
+                .filter(name -> updatedCategories.stream().noneMatch(category -> category.getTag().equalsIgnoreCase(name)))
+                .map(tag -> new Category(tag))
+                .collect(Collectors.toList());
+
+        System.out.println("missingcategories: " + missingCategories);
+
+        //Uudet kategoriat tietokantaan.
+        List<Category> savedCategories = categoryRepository.saveAll(missingCategories);
+        updatedCategories.addAll(savedCategories);
+
+        //Yhdistää eventin vanhat tagit + uudet.
+        Set<Category> mergedCategories = new HashSet<>(currentCategories);
+        mergedCategories.addAll(updatedCategories);
+
+        //Laittaa eventtiin oikeat kategoria tägit.
+        event.setCategoryTags(new ArrayList<>(mergedCategories));
+        System.out.println("eventti uudestaan: " + event);
+
+        calendarRepository.save(event);
+
+        return "redirect:/events/" + id;  // Redirect back to the event details page
+    }
+
+    //Poistaa tietyn kategorian eventistä.
+    @PostMapping("/events/{eventId}/remove-category/{categoryId}")
+    public String removeCategoryFromEvent(@PathVariable Long eventId, @PathVariable Long categoryId) {
+        Event event = calendarRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+        event.getCategoryTags().remove(category);  // Remove the category from the event
+
+        // Save the updated event
+        calendarRepository.save(event);
+
+        return "redirect:/events/" + eventId + "/edit-categories";  // Redirect back to category editing page
     }
 
     //Uuden eventin luominen ja lisäys tietokantaan.

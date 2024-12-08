@@ -15,10 +15,23 @@
                 <span th:text="${event.desc}">description</span>
                 <span th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}">date</span>
                 <span th:text="${event.status}">status</span>
-                <!-- Button to view individual event details -->
+                <!-- Yksittäisen eventin lisätiedot -->
                 <a th:href="@{/events/{id}(id=${event.id})}">View Details</a>
             </li>
         </ul>
+
+        <h2>Categories</h2>
+        <div th:if="${categories != null and not #lists.isEmpty(categories)}">
+            <ul>
+                <li th:each="category: ${categories}">
+                    <a th:href="@{/categories/{id}(id=${category.id})}" class="category-link"
+                       th:text="${category.tag}">Category Name</a>
+                </li>
+            </ul>
+        </div>
+        <div th:if="${categories == null or #lists.isEmpty(categories)}">
+            <p>No categories available.</p>
+        </div>
 
         <h2>Add new</h2>
 
