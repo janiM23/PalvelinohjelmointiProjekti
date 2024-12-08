@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
@@ -34,6 +31,44 @@ public class CalendarDatabaseController {
         return "index";
     }
 
+    //Näyttää yksittäisen eventin.
+    @GetMapping("/events/{id}")
+    public String viewEvent(@PathVariable Long id, Model model) {
+        Event event = calendarRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Event not found"));
+        model.addAttribute("event", event);
+        //eventDetail kohta, jossa thymeleaf tarkistaa onko editti päällä.
+        //Tämä GET hoitaa vaan näyttämistä, joten se asetetaan false.
+        model.addAttribute("editMode", false);
+        return "eventDetail";
+    }
+
+    //Yksittäisen eventin editointi.
+    @GetMapping("/events/{id}/edit")
+    public String editEventForm(@PathVariable Long id, Model model) {
+        Event event = calendarRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Event not found"));
+        model.addAttribute("event", event);
+        //eventDetail kohta, jossa thymeleaf tarkistaa onko editti päällä.
+        //Tämä osio hoitaa editoinnin, joten se asetetaan true.
+        model.addAttribute("editMode", true); // Switch to edit mode
+        return "eventDetail";
+    }
+
+    //Yksittäisen eventin editointi.
+    @PostMapping("/events/{id}/edit")
+    public String saveEditedEvent(@PathVariable Long id, @ModelAttribute Event event) {
+        Event existingEvent = calendarRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        //Päivitetään arvot. eventDetail.html hoitaa logiikan, ettei käyttäjä syötä väärää päivämäärä.
+        existingEvent.setTitle(event.getTitle());
+        existingEvent.setDesc(event.getDesc());
+        existingEvent.setDate(event.getDate());
+        existingEvent.setStatus(event.getStatus());
+        calendarRepository.save(existingEvent);
+
+        return "redirect:/";
+    }
+
+    //Uuden eventin luominen ja lisäys tietokantaan.
     @PostMapping("/")
     public String post(@RequestParam String title,
                        @RequestParam String desc,
