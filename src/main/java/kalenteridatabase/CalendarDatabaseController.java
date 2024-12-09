@@ -23,18 +23,23 @@ public class CalendarDatabaseController {
     @Autowired
     private DataSourceTransactionManagerAutoConfiguration dataSourceTransactionManagerAutoConfiguration;
 
+    @GetMapping("/")
+    public String login() {
+        return ("redirect:/login");
+    }
+
     @GetMapping("/calendar")
     public String list(Model model) {
-        // Retrieve the list of events
+        //Haetaan eventit ja kategoriat listaan.
         List<Event> events = calendarRepository.findAll();
         List<Category> categories = categoryRepository.findAll();
 
-        // Sort the events by localtime (oldest to newest)
+        //Järjestetään eventit ajan mukaan(yksi vaatimuksista).
         events = events.stream()
                 .sorted(Comparator.comparing(Event::getDate)) // Sorting by localtime field
                 .collect(Collectors.toList());
 
-        // Add sorted events to the model
+        //Attribuutit html:ään.
         System.out.println("eventit: " + events);
         model.addAttribute("events", events);
         model.addAttribute("categories", categories);
@@ -142,24 +147,30 @@ public class CalendarDatabaseController {
 
         calendarRepository.save(event);
 
-        return "redirect:/calendar/events/" + id;  // Redirect back to the event details page
+        return "redirect:/calendar/events/" + id;
     }
 
     //Poistaa tietyn kategorian eventistä.
+    //Pitää muistaa join table, joten ei niin yksinkertainen homma.
     @PostMapping("/calendar/events/{eventId}/remove-category/{categoryId}")
     public String removeCategoryFromEvent(@PathVariable Long eventId, @PathVariable Long categoryId) {
+
+        //Etsitään eventti mistä pitäisi poistaa kategoria.
         Event event = calendarRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
 
+        //Etsitään kategoria.
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
-        event.getCategoryTags().remove(category);  // Remove the category from the event
+        //Poistetaan kategoria eventistä tuon ylemmän category olennon avulla.
+        event.getCategoryTags().remove(category);
 
-        // Save the updated event
+        //Vielä muutoksen tallennus eventtiin.
         calendarRepository.save(event);
 
-        return "redirect:/calendar/events/" + eventId + "/edit-categories";  // Redirect back to category editing page
+        //Vie takaisin siihen category edit -sivulle.
+        return "redirect:/calendar/events/" + eventId + "/edit-categories";
     }
 
     //Uuden eventin luominen ja lisäys tietokantaan.
@@ -175,9 +186,6 @@ public class CalendarDatabaseController {
         System.out.println("Description: " + desc);
         System.out.println("Date: " + date);
         System.out.println("Category: " + category);
-
-        //List<Event> events = calendarRepository.findAll();
-        //model.addAttribute("events", events);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");  // Format for user input
         LocalDate parsedDate = null;

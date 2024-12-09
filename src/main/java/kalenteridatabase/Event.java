@@ -27,6 +27,7 @@ public class Event extends AbstractPersistable<Long> {
     //private String img;
     private Boolean status = false;
 
+    //Join-table
     @ManyToMany
     @JoinTable(
             name = "EventCategoryTag",

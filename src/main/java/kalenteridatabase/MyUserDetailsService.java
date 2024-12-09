@@ -5,9 +5,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Service
 public class MyUserDetailsService implements UserDetailsService {
-
     private final UserRepository userRepository;
 
     public MyUserDetailsService(UserRepository userRepository) {
@@ -15,17 +16,18 @@ public class MyUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
-        User user = userRepository.findByLogin(login);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("Loading user: " + username); // Debugging log
+        User user = userRepository.findByLogin(username);
         if (user == null) {
+            System.out.println("User not found: " + username); // Debugging log
             throw new UsernameNotFoundException("User not found");
         }
-
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getLogin())
-                .password(user.getPassword())
-                .roles("USER") // Default role for now
-                .build();
+        System.out.println("User found: " + user.getLogin()); // Debugging log
+        return new org.springframework.security.core.userdetails.User(
+                user.getLogin(),
+                user.getPassword(),  // Assuming the password is in plain text for now
+                new ArrayList<>()
+        );
     }
-
 }
