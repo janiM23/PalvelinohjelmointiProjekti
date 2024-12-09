@@ -4,14 +4,15 @@
     <title>Category - Events</title>
 </head>
 <body>
-<h1>Events in Category: <span th:text="${category.tag}"></span></h1>
+<h1>Category: <span th:text="${category.tag}"></span></h1>
 
+<!-- Näyttää tietyn kategorian eventit. -->
 <ul>
     <li th:each="event: ${events}">
-        <span th:text="${event.title}">Event Title</span>
-        <span th:text="${event.desc}">Description</span>
-        <span th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}">Date</span>
-        <span th:text="${event.status}">Status</span>
+        <span><strong>Title: </strong><span th:text="${event.title}">Event Title</span></span>
+        <span><strong>Description: </strong><span th:text="${event.desc}">Description</span></span>
+        <span><strong>Due date: </strong><span th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}">Date</span></span>
+        <span><strong>Status: </strong><span th:text="${event.status ? 'Done' : 'Not done'}">Status</span></span>
         <a th:href="@{/calendar/events/{id}(id=${event.id})}">View Details</a>
     </li>
 </ul>

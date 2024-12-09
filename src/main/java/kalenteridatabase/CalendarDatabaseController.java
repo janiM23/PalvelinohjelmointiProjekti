@@ -2,6 +2,8 @@ package kalenteridatabase;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 @Controller
 public class CalendarDatabaseController {
 
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private CalendarRepository calendarRepository;
     @Autowired
@@ -187,41 +191,59 @@ public class CalendarDatabaseController {
         System.out.println("Date: " + date);
         System.out.println("Category: " + category);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");  // Format for user input
+        //Tarkistaa onko päivämäärän syntaksi hyvä.
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         LocalDate parsedDate = null;
         try {
             parsedDate = LocalDate.parse(date, formatter);
             System.out.println(parsedDate);
         } catch (DateTimeParseException e) {
-            System.out.println("Virhe.");
+            System.out.println("Invalid date format.");
             redirectAttributes.addFlashAttribute("dateError", "Invalid date format. Please use dd.MM.yyyy.");
-            System.out.println("Date Error: " + redirectAttributes.getFlashAttributes());
             return "redirect:/";
         }
 
-        //Kattelee, että onko kategoriaa vielä olemassa. Jos ei ole, luo uuden.
+        //Tämä hakee kirjautumistiedoista id:n, jotta se voidaan asettaa event ja category.
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = null;
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+            User user = userRepository.findByLogin(username);
+            if (user != null) {
+                userId = user.getId(); // Fetch user ID
+                System.out.println("Logged-in user ID: " + userId);
+            }
+        }
+
+        //Pakko olla tämä kikka, tai alkaa javan kootut itkut. Luota sanaani.
+        final Long finalUserId = userId;
+
+        //Etsii kategorian ja jos ei löydy luo uuden, ja laittaa sen userid:n sinne.
         Category categoryObject = categoryRepository.findByTag(category)
                 .orElseGet(() -> {
                     System.out.println("Category not found. Creating a new one.");
                     Category newCategory = new Category(category);
+                    newCategory.setUserId(finalUserId);
                     categoryRepository.save(newCategory);
                     return newCategory;
                 });
 
         System.out.println("Category object: " + categoryObject);
 
+
+        //Tehdään uus eventi-olento ja laitetaan tavarat sisään.
         Event event = new Event();
         event.setTitle(title);
         event.setDesc(desc);
         event.setDate(parsedDate);
         event.setStatus(false);
+        event.setUserId(userId);
         categoryObject.getEvents().add(event);
-        //Collections.singletonList-metodi luo listan jossa on yksi kategoriaobjekti.
-        //setCategoryTags on automaattisesti luotu lombokin @Data komennolla, eli näitä ei tarvi itse värkätä.
-        event.setCategoryTags(Collections.singletonList(categoryObject));
-        System.out.println("Event object before category assignment: " + event);
 
-        System.out.println("Event object: " + event);
+        //Pitää laittaa ne tagit manytomany suhteen takia.
+        event.setCategoryTags(Collections.singletonList(categoryObject));
+        System.out.println("Event object before saving: " + event);
+
         calendarRepository.save(event);
         System.out.println("Event saved successfully.");
         return "redirect:/calendar";

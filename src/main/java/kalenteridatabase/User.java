@@ -16,8 +16,6 @@ public class User extends AbstractPersistable<Long> {
     private String login;
     private String password;
 
-    private Long userId;
-
     public String getLogin() {
         return login;
     }

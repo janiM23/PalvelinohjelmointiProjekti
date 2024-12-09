@@ -8,18 +8,18 @@
 
     <body>
         <h1>Calendar</h1>
-
+        <!-- Näytetään kaikki eventit. -->
         <ul>
             <li th:each="event: ${events}">
                 <span><strong>Title: </strong><span th:text="${event.title}">title</span></span>
                 <span><strong>Description: </strong><span th:text="${event.desc}">description</span></span>
-                <span><strong>Date: </strong><span th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}">date</span></span>
+                <span><strong>Due date: </strong><span th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}">date</span></span>
                 <span><strong>Status: </strong><span th:text="${event.status ? 'Done' : 'Not Done'}">status</span></span>
                 <!-- Yksittäisen eventin lisätiedot -->
                 <a th:href="@{/calendar/events/{id}(id=${event.id})}">View Details</a>
             </li>
         </ul>
-
+        <!-- Näytetään kaikki kategoriat, jos niitä on. -->
         <h2>Categories</h2>
         <div th:if="${categories != null and not #lists.isEmpty(categories)}">
             <ul>
@@ -34,7 +34,7 @@
         </div>
 
         <h2>Add new</h2>
-
+        <!-- Formi uuden eventin luomiseen. HUOM ainoastaan date pitää olla niin kuin pitää, muut voi olla vaikka tyhjiä. -->
         <form th:action="@{/}" method="POST">
             <input type="text" name="title" placeholder="Title"/>
             <input type="text" name="desc" placeholder="Description"/>
@@ -45,6 +45,7 @@
         <form th:action="@{/logout}" method="post">
             <button type="submit">Log out</button>
         </form>
+        <!-- Alert-ikkuna, jos se päivämäärä laitetaan väärässä muodosssa. -->
         <script th:if="${dateError != null}" type="text/javascript">
             //alert([[${dateError}]]);
             alert('Wrong dateformat. Use dd.MM.yyyy.');

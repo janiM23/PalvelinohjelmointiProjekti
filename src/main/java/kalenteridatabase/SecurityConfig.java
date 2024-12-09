@@ -8,7 +8,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;  // Use NoOpPasswordEncoder for plain text passwords
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
@@ -25,6 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/css/**", "/js/**").permitAll() // Allow static resources
                 .antMatchers("/login").permitAll() // Allow access to the login page
+                .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated() // Require authentication for other pages
                 .and()
                 .formLogin()
@@ -34,7 +37,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout()
                     .logoutUrl("/logout") // Logout URL
                     .logoutSuccessUrl("/login") // Redirect after logout
-                    .permitAll();
+                    .permitAll()
+                .and()
+                .csrf().disable() // Disable CSRF protection for H2 console
+                .headers().frameOptions().disable(); // Allow frames for H2 console
     }
 
     //Käytetään itsetehtyä MyUserDetailsServicea tuon userDetailsServicen tilalla.
@@ -60,11 +66,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    //Käyttää tekstiä salasanoissa eikä suojaa niitä.
-    //Tätä ei ollut vaatimuksissa, ja helpomman testailun vuoksi päätin käyttää tekstiä.
-    //Tämä pitää vaihtaa, jos salasanat haluaa suojata esim. hashiksi.
+    //Tämä pitää olla, että hashatut salasanat toimii(bcrypt).
     @Bean
-    public static NoOpPasswordEncoder passwordEncoder() {
-        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

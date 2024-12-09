@@ -16,7 +16,7 @@
 <div th:if="${!editMode}">
     <strong>Title: </strong><p th:text="${event.title}"></p>
     <strong>Description: </strong><p th:text="${event.desc}"></p>
-    <strong>Date: </strong><p th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}"></p>
+    <strong>Due date: </strong><p th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}"></p>
     <strong>Status: </strong><p th:text="${event.status ? 'Done' : 'Not Done'}"></p>
 
     <form th:action="@{/calendar/events/{id}/edit(id=${event.id})}" method="GET">
@@ -47,8 +47,8 @@
         <!-- Status on boolean, joten yksinkertainen selecti. -->
         <label for="status">Status:</label>
         <select id="status" name="status" required>
-            <option value="true" th:selected="${event.status == true}">True</option>
-            <option value="false" th:selected="${event.status == false}">False</option>
+            <option value="true" th:selected="${event.status == true}">Tehty</option>
+            <option value="false" th:selected="${event.status == false}">Ei tehty</option>
         </select><br/>
 
         <input type="submit" value="Save Changes"/>
@@ -60,7 +60,7 @@
 <a href="/calendar/" th:href="@{/calendar/}">Back to Calendar</a>
 
 <script>
-    // JavaScript function to validate the date format
+    //Tämä tarkastaa päivämäärän oikean muodon.
     function validateDate() {
         var dateInput = document.getElementById('date').value;
         var datePattern = /^\d{2}\.\d{2}\.\d{4}$/;  // Pattern for dd.MM.yyyy

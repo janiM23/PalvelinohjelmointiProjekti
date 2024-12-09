@@ -22,6 +22,8 @@ public class Category extends AbstractPersistable<Long>{
     @Column(unique = true, nullable = false)
     private String tag;
 
+    private Long userId;
+
     @ManyToMany(mappedBy = "categoryTags")
     @JsonIgnore
     private List<Event> events = new ArrayList<>();

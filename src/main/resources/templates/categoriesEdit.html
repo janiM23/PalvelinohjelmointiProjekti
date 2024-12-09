@@ -9,12 +9,12 @@
 
 <h3>Categories:</h3>
 
-<!-- If the event has no categories, show a message -->
+<!-- Onko eventillä kategorioita. -->
 <div th:if="${categories.isEmpty()}">
     <p>No categories available for this event.</p>
 </div>
 
-<!-- List current categories and allow removal -->
+<!-- Jos on kategorioita listaus ja nappi poistamiseen. -->
 <ul>
     <li th:each="category : ${categories}">
         <span th:text="${category.tag}"></span>
@@ -26,7 +26,7 @@
 
 <h3>Add a Category:</h3>
 
-<!-- Form to add new categories -->
+<!-- Uuden kategorian luonti.-->
 <form th:action="@{/calendar/events/{id}/edit-categories(id=${event.id})}" method="POST">
     <label for="categoryNames">Category Names:</label>
     <input type="text" id="categoryNames" name="categoryNames" placeholder="Enter category names, comma-separated" required /><br/>
