@@ -23,7 +23,7 @@ public class CalendarDatabaseController {
     @Autowired
     private DataSourceTransactionManagerAutoConfiguration dataSourceTransactionManagerAutoConfiguration;
 
-    @GetMapping("/")
+    @GetMapping("/calendar")
     public String list(Model model) {
         // Retrieve the list of events
         List<Event> events = calendarRepository.findAll();
@@ -42,7 +42,7 @@ public class CalendarDatabaseController {
     }
 
     //Näyttää yksittäisen eventin.
-    @GetMapping("/events/{id}")
+    @GetMapping("/calendar/events/{id}")
     public String viewEvent(@PathVariable Long id, Model model) {
         Event event = calendarRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Event not found"));
         model.addAttribute("event", event);
@@ -53,7 +53,7 @@ public class CalendarDatabaseController {
     }
 
     //Yksittäisen eventin editointi.
-    @GetMapping("/events/{id}/edit")
+    @GetMapping("/calendar/events/{id}/edit")
     public String editEventForm(@PathVariable Long id, Model model) {
         Event event = calendarRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Event not found"));
         model.addAttribute("event", event);
@@ -64,7 +64,7 @@ public class CalendarDatabaseController {
     }
 
     //Näyttää kategoriassa olevat eventit.
-    @GetMapping("/categories/{id}")
+    @GetMapping("/calendar/categories/{id}")
     public String showCategoryEvents(@PathVariable Long id, Model model) {
         Category category = categoryRepository.findById(id).orElse(null);
 
@@ -77,7 +77,7 @@ public class CalendarDatabaseController {
     }
 
     //Yksittäisen eventin editointi.
-    @PostMapping("/events/{id}/edit")
+    @PostMapping("/calendar/events/{id}/edit")
     public String saveEditedEvent(@PathVariable Long id, @ModelAttribute Event event) {
         Event existingEvent = calendarRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Event not found"));
 
@@ -88,11 +88,11 @@ public class CalendarDatabaseController {
         existingEvent.setStatus(event.getStatus());
         calendarRepository.save(existingEvent);
 
-        return "redirect:/";
+        return "redirect:/calendar/";
     }
 
     //Listaa eventin kategoriat muokattavaksi tai lisättäväksi.
-    @GetMapping("/events/{id}/edit-categories")
+    @GetMapping("/calendar/events/{id}/edit-categories")
     public String editCategories(@PathVariable Long id, Model model) {
         Event event = calendarRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found."));
@@ -104,7 +104,7 @@ public class CalendarDatabaseController {
     }
 
     //Laittaa kategorian eventille, vaikka kategoria olisi jo olemassa.
-    @PostMapping("/events/{id}/edit-categories")
+    @PostMapping("/calendar/events/{id}/edit-categories")
     public String saveCategories(@PathVariable Long id, @RequestParam List<String> categoryNames) {
 
         //Etsii oikean eventin id:n avulla.
@@ -142,11 +142,11 @@ public class CalendarDatabaseController {
 
         calendarRepository.save(event);
 
-        return "redirect:/events/" + id;  // Redirect back to the event details page
+        return "redirect:/calendar/events/" + id;  // Redirect back to the event details page
     }
 
     //Poistaa tietyn kategorian eventistä.
-    @PostMapping("/events/{eventId}/remove-category/{categoryId}")
+    @PostMapping("/calendar/events/{eventId}/remove-category/{categoryId}")
     public String removeCategoryFromEvent(@PathVariable Long eventId, @PathVariable Long categoryId) {
         Event event = calendarRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
@@ -159,7 +159,7 @@ public class CalendarDatabaseController {
         // Save the updated event
         calendarRepository.save(event);
 
-        return "redirect:/events/" + eventId + "/edit-categories";  // Redirect back to category editing page
+        return "redirect:/calendar/events/" + eventId + "/edit-categories";  // Redirect back to category editing page
     }
 
     //Uuden eventin luominen ja lisäys tietokantaan.
@@ -216,7 +216,7 @@ public class CalendarDatabaseController {
         System.out.println("Event object: " + event);
         calendarRepository.save(event);
         System.out.println("Event saved successfully.");
-        return "redirect:/";
+        return "redirect:/calendar";
     }
 
 }
