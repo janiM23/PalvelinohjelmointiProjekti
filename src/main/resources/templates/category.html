@@ -12,10 +12,10 @@
         <span th:text="${event.desc}">Description</span>
         <span th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}">Date</span>
         <span th:text="${event.status}">Status</span>
-        <a th:href="@{/events/{id}(id=${event.id})}">View Details</a>
+        <a th:href="@{/calendar/events/{id}(id=${event.id})}">View Details</a>
     </li>
 </ul>
 
-<a href="/">Back to Calendar</a>
+<a href="/calendar/">Back to Calendar</a>
 </body>
 </html>

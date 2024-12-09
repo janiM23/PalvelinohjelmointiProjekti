@@ -26,7 +26,7 @@ public class Event extends AbstractPersistable<Long> {
     private LocalDate date;
     //private String img;
     private Boolean status = false;
-
+    private Long userId;
     //Join-table
     @ManyToMany
     @JoinTable(

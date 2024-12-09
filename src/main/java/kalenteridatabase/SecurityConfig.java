@@ -22,24 +22,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests()
-                .antMatchers("/css/**", "/js/**").permitAll() // Permit static resources
-                .antMatchers("/h2-console/**").permitAll() //Konsoliin pääsee ilman kirjautumista(esim tarkistamaan onko käyttäjät oikeasti tietokannassa))
-                .anyRequest().authenticated() //Muut vaatii kirjautumisen.
+        http.authorizeRequests()
+                .antMatchers("/css/**", "/js/**").permitAll() // Allow static resources
+                .antMatchers("/login").permitAll() // Allow access to the login page
+                .anyRequest().authenticated() // Require authentication for other pages
                 .and()
                 .formLogin()
-                .defaultSuccessUrl("/calendar", true) // Redirect after login
-                .permitAll() // Allow access to the login page
+                    .defaultSuccessUrl("/calendar", true) // Redirect after successful login
+                    .permitAll()
                 .and()
                 .logout()
-                .logoutUrl("/logout") // Logout URL
-                .logoutSuccessUrl("/login?logout") // Redirect to login after logout
-                .permitAll();
-
-        // Disable CSRF for H2 Console (H2 console requires this)
-        http.csrf().disable();
-        http.headers().frameOptions().sameOrigin(); // Allows you to use frames in the H2 console
+                    .logoutUrl("/logout") // Logout URL
+                    .logoutSuccessUrl("/login") // Redirect after logout
+                    .permitAll();
     }
 
     //Käytetään itsetehtyä MyUserDetailsServicea tuon userDetailsServicen tilalla.

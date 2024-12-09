@@ -18,7 +18,7 @@
 <ul>
     <li th:each="category : ${categories}">
         <span th:text="${category.tag}"></span>
-        <form th:action="@{/events/{eventId}/remove-category/{categoryId}(eventId=${event.id}, categoryId=${category.id})}" method="POST">
+        <form th:action="@{/calendar/events/{eventId}/remove-category/{categoryId}(eventId=${event.id}, categoryId=${category.id})}" method="POST">
             <button type="submit">Remove</button>
         </form>
     </li>
@@ -27,14 +27,14 @@
 <h3>Add a Category:</h3>
 
 <!-- Form to add new categories -->
-<form th:action="@{/events/{id}/edit-categories(id=${event.id})}" method="POST">
+<form th:action="@{/calendar/events/{id}/edit-categories(id=${event.id})}" method="POST">
     <label for="categoryNames">Category Names:</label>
     <input type="text" id="categoryNames" name="categoryNames" placeholder="Enter category names, comma-separated" required /><br/>
 
     <input type="submit" value="Save Categories"/>
 </form>
 
-<a href="/events/{id}" th:href="@{/events/{id}(id=${event.id})}">Back to Event</a>
+<a href="/calendar/events/{id}" th:href="@{/calendar/events/{id}(id=${event.id})}">Back to Event</a>
 
 </body>
 </html>

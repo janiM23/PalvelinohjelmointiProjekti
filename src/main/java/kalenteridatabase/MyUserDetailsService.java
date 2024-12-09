@@ -24,10 +24,12 @@ public class MyUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         System.out.println("User found: " + user.getLogin()); // Debugging log
+
+        // No roles or authorities assigned, empty list
         return new org.springframework.security.core.userdetails.User(
                 user.getLogin(),
-                user.getPassword(),  // Assuming the password is in plain text for now
-                new ArrayList<>()
+                user.getPassword(), // Assuming the password is stored securely
+                new ArrayList<>()    // No roles or authorities
         );
     }
 }

@@ -11,12 +11,12 @@
 
         <ul>
             <li th:each="event: ${events}">
-                <span th:text="${event.title}">title</span>
-                <span th:text="${event.desc}">description</span>
-                <span th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}">date</span>
-                <span th:text="${event.status}">status</span>
+                <span><strong>Title: </strong><span th:text="${event.title}">title</span></span>
+                <span><strong>Description: </strong><span th:text="${event.desc}">description</span></span>
+                <span><strong>Date: </strong><span th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}">date</span></span>
+                <span><strong>Status: </strong><span th:text="${event.status ? 'Done' : 'Not Done'}">status</span></span>
                 <!-- Yksittäisen eventin lisätiedot -->
-                <a th:href="@{/events/{id}(id=${event.id})}">View Details</a>
+                <a th:href="@{/calendar/events/{id}(id=${event.id})}">View Details</a>
             </li>
         </ul>
 
@@ -24,7 +24,7 @@
         <div th:if="${categories != null and not #lists.isEmpty(categories)}">
             <ul>
                 <li th:each="category: ${categories}">
-                    <a th:href="@{/categories/{id}(id=${category.id})}" class="category-link"
+                    <a th:href="@{/calendar/categories/{id}(id=${category.id})}" class="category-link"
                        th:text="${category.tag}">Category Name</a>
                 </li>
             </ul>
@@ -42,7 +42,9 @@
             <input type="text" name="category" placeholder="Category"/>
             <input type="submit" value="Add!"/>
         </form>
-
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Log out</button>
+        </form>
         <script th:if="${dateError != null}" type="text/javascript">
             //alert([[${dateError}]]);
             alert('Wrong dateformat. Use dd.MM.yyyy.');

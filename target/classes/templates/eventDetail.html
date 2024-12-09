@@ -14,12 +14,12 @@
 
 <!-- Tarkistaako onko editmode pois päältä. -->
 <div th:if="${!editMode}">
-    <h2 th:text="${event.title}"></h2>
-    <p th:text="${event.desc}"></p>
-    <p th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}"></p>
-    <p th:text="${event.status}"></p>
+    <strong>Title: </strong><p th:text="${event.title}"></p>
+    <strong>Description: </strong><p th:text="${event.desc}"></p>
+    <strong>Date: </strong><p th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}"></p>
+    <strong>Status: </strong><p th:text="${event.status ? 'Done' : 'Not Done'}"></p>
 
-    <form th:action="@{/events/{id}/edit(id=${event.id})}" method="GET">
+    <form th:action="@{/calendar/events/{id}/edit(id=${event.id})}" method="GET">
         <button type="submit">Edit</button>
     </form>
 </div>
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Hakee oikean eventin ja th:valuella näyttää valmiit arvot inputeissa. -->
-    <form id="editEventForm" th:action="@{/events/{id}/edit(id=${event.id})}" method="POST" onsubmit="return validateDate()">
+    <form id="editEventForm" th:action="@{/calendar/events/{id}/edit(id=${event.id})}" method="POST" onsubmit="return validateDate()">
         <label for="title">Title:</label>
         <input type="text" id="title" name="title" th:value="${event.title}" required/><br/>
 
@@ -54,10 +54,10 @@
         <input type="submit" value="Save Changes"/>
     </form>
 
-    <a th:href="@{/events/{id}/edit-categories(id=${event.id})}" class="btn btn-primary">Edit Categories</a>
+    <a th:href="@{/calendar/events/{id}/edit-categories(id=${event.id})}" class="btn btn-primary">Edit Categories</a>
 </div>
 
-<a href="/" th:href="@{/}">Back to Calendar</a>
+<a href="/calendar/" th:href="@{/calendar/}">Back to Calendar</a>
 
 <script>
     // JavaScript function to validate the date format
