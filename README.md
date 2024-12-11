@@ -16,4 +16,4 @@ Sivulla on kaikki vaaditut ominaisuudet, paitsi Event-luokkasta sulatin date ja 
 koska päivämäärä ja aika voidaan joka tapauksessa pilkkoa tuosta sarakkeesta, joka localDateTime muuttujan avulla tallentaa päivämäärän ja ajan yhteen paikkaan.
 
 Lisäominaisuuksia en tehnyt, paitsi päivämäärän syötteen validoinnin, koska sen mukaan tehtävät tulee järjestellä. Lisäksi etusivulla näytetään onko tehtävä myöhässä,
-vertaamalla tehtävän määräpäivää toiseen muuttujaan, joka saa päivämäärän laitteesta LocalDate.now(); komennolla.
+vertaamalla tehtävän määräpäivää toiseen muuttujaan, joka saa päivämäärän laitteesta LocalDate.now(); komennolla, ja tarkistamalla ettei tehtävää ole vielä tehty(status muuttuja).
