@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 @Controller
 public class CalendarDatabaseController {
 
+    private LocalDate currentTime = LocalDate.now();
+
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -42,9 +44,12 @@ public class CalendarDatabaseController {
         events = events.stream()
                 .sorted(Comparator.comparing(Event::getDate)) // Sorting by localtime field
                 .collect(Collectors.toList());
+        //Onko myöhässä
+
 
         //Attribuutit html:ään.
         System.out.println("eventit: " + events);
+        model.addAttribute("currentTime", currentTime);
         model.addAttribute("events", events);
         model.addAttribute("categories", categories);
         return "index";

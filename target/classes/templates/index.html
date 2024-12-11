@@ -15,6 +15,9 @@
                 <span><strong>Description: </strong><span th:text="${event.desc}">description</span></span>
                 <span><strong>Due date: </strong><span th:text="${#temporals.format(event.date, 'dd.MM.yyyy')}">date</span></span>
                 <span><strong>Status: </strong><span th:text="${event.status ? 'Done' : 'Not Done'}">status</span></span>
+                <div th:if="${event.date.isBefore(currentTime)&&!event.status}">
+                    <span><strong style="color:red;">Myöhässä!</strong></span>
+                </div>
                 <!-- Yksittäisen eventin lisätiedot -->
                 <a th:href="@{/calendar/events/{id}(id=${event.id})}">View Details</a>
             </li>
