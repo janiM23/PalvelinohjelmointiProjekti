@@ -8,6 +8,8 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,12 +23,15 @@ public class Event extends AbstractPersistable<Long> {
     private String title;
     private String desc;
     private LocalDate date;
+    private LocalDateTime timestamp = LocalDateTime.now();
+    private Boolean status = false;
+
     //Foreign key login id:stä.
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
     //private String img;
-    private Boolean status = false;
+
 
     //Join-table kategorialle ja eventille.
     @ManyToMany
