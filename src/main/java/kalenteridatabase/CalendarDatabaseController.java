@@ -177,6 +177,28 @@ public class CalendarDatabaseController {
         return "redirect:/calendar/events/" + eventId + "/edit-categories";
     }
 
+    //Poisto metodi.
+    @GetMapping("/calendar/events/{id}/delete")
+    public String deleteEvent(@PathVariable Long id) {
+        //Haetaan eventti id:llä.
+        Optional<Event> eventOptional = calendarRepository.findById(id);
+        System.out.println(eventOptional);
+        if (eventOptional.isPresent()) {
+            Event event = eventOptional.get();
+
+            //Poistetaan event kategorioista.
+            for (Category category : event.getCategoryTags()) {
+                category.getEvents().remove(event);
+                categoryRepository.save(category);
+            }
+            System.out.println(event);
+            calendarRepository.delete(event);
+            System.out.println("Event deleted successfully.");
+        }
+
+        return "redirect:/calendar";
+    }
+
     //Uuden eventin luominen ja lisäys tietokantaan.
     @PostMapping("/")
     public String post(@RequestParam String title,
@@ -206,24 +228,25 @@ public class CalendarDatabaseController {
         //Tämä hakee kirjautumistiedoista id:n, jotta se voidaan asettaa event ja category.
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long userId = null;
+        User loggedInUser = null;
         if (principal instanceof UserDetails) {
             String username = ((UserDetails) principal).getUsername();
-            User user = userRepository.findByLogin(username);
-            if (user != null) {
-                userId = user.getId(); // Fetch user ID
+            loggedInUser = userRepository.findByLogin(username);
+            if (loggedInUser != null) {
+                userId = loggedInUser.getId();
                 System.out.println("Logged-in user ID: " + userId);
             }
         }
 
         //Pakko olla tämä kikka, tai alkaa javan kootut itkut. Luota sanaani.
-        final Long finalUserId = userId;
+        final User finalUser = loggedInUser;
 
         //Etsii kategorian ja jos ei löydy luo uuden, ja laittaa sen userid:n sinne.
         Category categoryObject = categoryRepository.findByTag(category)
                 .orElseGet(() -> {
                     System.out.println("Category not found. Creating a new one.");
                     Category newCategory = new Category(category);
-                    newCategory.setUserId(finalUserId);
+                    newCategory.setUser(finalUser);
                     categoryRepository.save(newCategory);
                     return newCategory;
                 });
@@ -237,7 +260,7 @@ public class CalendarDatabaseController {
         event.setDesc(desc);
         event.setDate(parsedDate);
         event.setStatus(false);
-        event.setUserId(userId);
+        event.setUser(loggedInUser);
         categoryObject.getEvents().add(event);
 
         //Pitää laittaa ne tagit manytomany suhteen takia.

@@ -56,6 +56,10 @@
 
     <a th:href="@{/calendar/events/{id}/edit-categories(id=${event.id})}" class="btn btn-primary">Edit Categories</a>
 </div>
+<!-- Delete button should be here -->
+<form th:action="@{/calendar/events/{id}/delete(id=${event.id})}" method="get">
+    <button type="submit">Delete event</button>
+</form>
 
 <a href="/calendar/" th:href="@{/calendar/}">Back to Calendar</a>
 
